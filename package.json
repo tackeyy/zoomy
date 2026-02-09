@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "tsx src/index.ts",
-    "zoom-cli": "tsx src/index.ts"
+    "zoom-cli": "tsx src/index.ts",
+    "test": "vitest run"
   },
   "bin": {
     "zoom-cli": "src/index.ts"
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^25.2.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

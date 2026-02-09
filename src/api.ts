@@ -4,6 +4,24 @@ import type {
   ListMeetingsResponse,
   Meeting,
 } from "./types.js";
+import { ApiError } from "./errors.js";
+
+function getApiErrorMessage(status: number, operation: string): string {
+  switch (status) {
+    case 400:
+      return `Invalid request parameters for ${operation}.`;
+    case 401:
+      return "Authentication expired. Please try again.";
+    case 403:
+      return `Insufficient permissions to ${operation}.`;
+    case 404:
+      return "Resource not found.";
+    case 429:
+      return "Rate limit exceeded. Please try again later.";
+    default:
+      return `Failed to ${operation} (HTTP ${status}).`;
+  }
+}
 
 export async function createMeeting(
   token: string,
@@ -27,11 +45,7 @@ export async function createMeeting(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    process.stderr.write(
-      `Failed to create meeting (${response.status}): ${errorText}\n`
-    );
-    process.exit(1);
+    throw new ApiError(getApiErrorMessage(response.status, "create meeting"));
   }
 
   return (await response.json()) as Meeting;
@@ -54,11 +68,7 @@ export async function listMeetings(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    process.stderr.write(
-      `Failed to list meetings (${response.status}): ${errorText}\n`
-    );
-    process.exit(1);
+    throw new ApiError(getApiErrorMessage(response.status, "list meetings"));
   }
 
   const data = (await response.json()) as ListMeetingsResponse;

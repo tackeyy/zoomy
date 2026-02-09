@@ -3,9 +3,10 @@ import { Command } from "commander";
 import { loadConfig } from "./config.js";
 import { getAccessToken } from "./auth.js";
 import { createMeeting, listMeetings } from "./api.js";
+import { ConfigError, AuthError, ApiError, ValidationError } from "./errors.js";
 
 // Date formatting: supports yyyy, MM, dd, HH, mm patterns
-function formatDate(date: Date, format: string, timezone: string): string {
+export function formatDate(date: Date, format: string, timezone: string): string {
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: timezone,
     year: "numeric",
@@ -28,7 +29,7 @@ function formatDate(date: Date, format: string, timezone: string): string {
     .replace("mm", get("minute"));
 }
 
-function buildTopic(
+export function buildTopic(
   startTime: string,
   withPerson: string | undefined,
   config: ReturnType<typeof loadConfig>
@@ -61,9 +62,17 @@ program
   .action(async (opts) => {
     const config = loadConfig();
 
+    const startDate = new Date(opts.start);
+    if (isNaN(startDate.getTime())) {
+      throw new ValidationError("--start must be a valid ISO 8601 datetime (e.g. 2026-02-10T10:00:00).");
+    }
+
     if (isNaN(opts.duration) || opts.duration <= 0) {
-      process.stderr.write("Error: --duration must be a positive number.\n");
-      process.exit(2);
+      throw new ValidationError("--duration must be a positive number.");
+    }
+
+    if (opts.duration > 1440) {
+      throw new ValidationError("--duration must not exceed 1440 minutes (24 hours).");
     }
 
     const topic = buildTopic(opts.start, opts.with, config);
@@ -105,6 +114,20 @@ program
   .option("--to <date>", "End date (YYYY-MM-DD)")
   .option("--json", "Output as JSON")
   .action(async (opts) => {
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+    if (opts.from && !datePattern.test(opts.from)) {
+      throw new ValidationError("--from must be in YYYY-MM-DD format.");
+    }
+
+    if (opts.to && !datePattern.test(opts.to)) {
+      throw new ValidationError("--to must be in YYYY-MM-DD format.");
+    }
+
+    if (opts.from && opts.to && opts.from > opts.to) {
+      throw new ValidationError("--from must not be after --to.");
+    }
+
     const config = loadConfig();
     const token = await getAccessToken(config);
     const meetings = await listMeetings(token, {
@@ -136,4 +159,27 @@ program
     }
   });
 
-program.parse();
+(async () => {
+  try {
+    await program.parseAsync();
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      process.stderr.write(`Configuration error: ${err.message}\n`);
+      process.exit(2);
+    }
+    if (err instanceof AuthError) {
+      process.stderr.write(`Authentication error: ${err.message}\n`);
+      process.exit(1);
+    }
+    if (err instanceof ApiError) {
+      process.stderr.write(`API error: ${err.message}\n`);
+      process.exit(1);
+    }
+    if (err instanceof ValidationError) {
+      process.stderr.write(`Validation error: ${err.message}\n`);
+      process.exit(2);
+    }
+    process.stderr.write("Unexpected error occurred.\n");
+    process.exit(1);
+  }
+})();

@@ -2,6 +2,7 @@ import { config } from "dotenv";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import type { AppConfig } from "./types.js";
+import { ConfigError } from "./errors.js";
 
 // __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -13,8 +14,7 @@ config({ path: resolve(__dirname, "..", ".env") });
 function requireEnv(key: string): string {
   const value = process.env[key];
   if (!value) {
-    process.stderr.write(`Error: ${key} is not set. Check your .env file.\n`);
-    process.exit(2);
+    throw new ConfigError(`${key} is not set. Check your .env file.`);
   }
   return value;
 }
