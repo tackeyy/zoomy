@@ -1,0 +1,25 @@
+{
+  "name": "zoom-cli",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "zoom-cli": "tsx src/index.ts"
+  },
+  "bin": {
+    "zoom-cli": "src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Zoom meeting CLI tool using Server-to-Server OAuth",
+  "dependencies": {
+    "commander": "^14.0.3",
+    "dotenv": "^17.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
