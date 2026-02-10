@@ -37,6 +37,14 @@ export interface ListMeetingsResponse {
   meetings: Meeting[];
 }
 
+// Zoom Meeting (update request body)
+export interface UpdateMeetingRequest {
+  topic?: string;
+  start_time?: string;
+  duration?: number;
+  timezone?: string;
+}
+
 // App config from .env
 export interface AppConfig {
   accountId: string;

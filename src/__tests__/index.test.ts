@@ -7,6 +7,7 @@ vi.mock("commander", () => {
     description() { return this; }
     version() { return this; }
     command() { return this; }
+    argument() { return this; }
     requiredOption() { return this; }
     option() { return this; }
     action() { return this; }
@@ -25,6 +26,9 @@ vi.mock("../auth.js", () => ({
 vi.mock("../api.js", () => ({
   createMeeting: vi.fn(),
   listMeetings: vi.fn(),
+  getMeeting: vi.fn(),
+  updateMeeting: vi.fn(),
+  deleteMeeting: vi.fn(),
 }));
 
 describe("formatDate", () => {

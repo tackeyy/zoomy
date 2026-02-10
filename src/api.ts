@@ -1,6 +1,7 @@
-import { ZOOM_MEETINGS_URL } from "./config.js";
+import { ZOOM_MEETINGS_URL, zoomMeetingUrl } from "./config.js";
 import type {
   CreateMeetingRequest,
+  UpdateMeetingRequest,
   ListMeetingsResponse,
   Meeting,
 } from "./types.js";
@@ -73,4 +74,57 @@ export async function listMeetings(
 
   const data = (await response.json()) as ListMeetingsResponse;
   return data.meetings;
+}
+
+export async function getMeeting(
+  token: string,
+  meetingId: number
+): Promise<Meeting> {
+  const response = await fetch(zoomMeetingUrl(meetingId), {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(getApiErrorMessage(response.status, "get meeting"));
+  }
+
+  return (await response.json()) as Meeting;
+}
+
+export async function updateMeeting(
+  token: string,
+  meetingId: number,
+  params: UpdateMeetingRequest
+): Promise<void> {
+  const response = await fetch(zoomMeetingUrl(meetingId), {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    throw new ApiError(getApiErrorMessage(response.status, "update meeting"));
+  }
+}
+
+export async function deleteMeeting(
+  token: string,
+  meetingId: number
+): Promise<void> {
+  const response = await fetch(zoomMeetingUrl(meetingId), {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new ApiError(getApiErrorMessage(response.status, "delete meeting"));
+  }
 }

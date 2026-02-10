@@ -2,7 +2,7 @@
 import { Command } from "commander";
 import { loadConfig } from "./config.js";
 import { getAccessToken } from "./auth.js";
-import { createMeeting, listMeetings } from "./api.js";
+import { createMeeting, listMeetings, getMeeting, updateMeeting, deleteMeeting } from "./api.js";
 import { ConfigError, AuthError, ApiError, ValidationError } from "./errors.js";
 
 // Date formatting: supports yyyy, MM, dd, HH, mm patterns
@@ -157,6 +157,131 @@ program
         process.stdout.write("\n");
       }
     }
+  });
+
+program
+  .command("get")
+  .description("Get details of a Zoom meeting")
+  .argument("<meetingId>", "Meeting ID")
+  .option("--json", "Output as JSON")
+  .action(async (meetingId: string, opts: { json?: boolean }) => {
+    const id = Number(meetingId);
+    if (!Number.isFinite(id) || id <= 0) {
+      throw new ValidationError("meetingId must be a positive number.");
+    }
+
+    const config = loadConfig();
+    const token = await getAccessToken(config);
+    const meeting = await getMeeting(token, id);
+
+    if (opts.json) {
+      process.stdout.write(
+        JSON.stringify(
+          {
+            id: meeting.id,
+            topic: meeting.topic,
+            start_time: meeting.start_time,
+            duration: meeting.duration,
+            join_url: meeting.join_url,
+          },
+          null,
+          2
+        ) + "\n"
+      );
+    } else {
+      process.stdout.write(`  ID:       ${meeting.id}\n`);
+      process.stdout.write(`  Topic:    ${meeting.topic}\n`);
+      process.stdout.write(`  Start:    ${meeting.start_time}\n`);
+      process.stdout.write(`  Duration: ${meeting.duration} min\n`);
+      process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+    }
+  });
+
+program
+  .command("update")
+  .description("Update a Zoom meeting")
+  .argument("<meetingId>", "Meeting ID")
+  .option("--topic <topic>", "New topic")
+  .option("--start <datetime>", "New start time (ISO 8601)")
+  .option("--duration <minutes>", "New duration in minutes", parseInt)
+  .option("--json", "Output as JSON")
+  .action(async (meetingId: string, opts: { topic?: string; start?: string; duration?: number; json?: boolean }) => {
+    const id = Number(meetingId);
+    if (!Number.isFinite(id) || id <= 0) {
+      throw new ValidationError("meetingId must be a positive number.");
+    }
+
+    if (!opts.topic && !opts.start && opts.duration === undefined) {
+      throw new ValidationError("At least one of --topic, --start, or --duration is required.");
+    }
+
+    if (opts.start) {
+      const startDate = new Date(opts.start);
+      if (isNaN(startDate.getTime())) {
+        throw new ValidationError("--start must be a valid ISO 8601 datetime (e.g. 2026-02-10T10:00:00).");
+      }
+    }
+
+    if (opts.duration !== undefined) {
+      if (isNaN(opts.duration) || opts.duration <= 0) {
+        throw new ValidationError("--duration must be a positive number.");
+      }
+      if (opts.duration > 1440) {
+        throw new ValidationError("--duration must not exceed 1440 minutes (24 hours).");
+      }
+    }
+
+    const config = loadConfig();
+    const token = await getAccessToken(config);
+
+    const params: Record<string, unknown> = {};
+    if (opts.topic) params.topic = opts.topic;
+    if (opts.start) params.start_time = opts.start;
+    if (opts.duration !== undefined) params.duration = opts.duration;
+
+    await updateMeeting(token, id, params);
+
+    const meeting = await getMeeting(token, id);
+
+    if (opts.json) {
+      process.stdout.write(
+        JSON.stringify(
+          {
+            id: meeting.id,
+            topic: meeting.topic,
+            start_time: meeting.start_time,
+            duration: meeting.duration,
+            join_url: meeting.join_url,
+          },
+          null,
+          2
+        ) + "\n"
+      );
+    } else {
+      process.stdout.write(`Meeting updated!\n`);
+      process.stdout.write(`  ID:       ${meeting.id}\n`);
+      process.stdout.write(`  Topic:    ${meeting.topic}\n`);
+      process.stdout.write(`  Start:    ${meeting.start_time}\n`);
+      process.stdout.write(`  Duration: ${meeting.duration} min\n`);
+      process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+    }
+  });
+
+program
+  .command("delete")
+  .description("Delete a Zoom meeting")
+  .argument("<meetingId>", "Meeting ID")
+  .action(async (meetingId: string) => {
+    const id = Number(meetingId);
+    if (!Number.isFinite(id) || id <= 0) {
+      throw new ValidationError("meetingId must be a positive number.");
+    }
+
+    const config = loadConfig();
+    const token = await getAccessToken(config);
+    await deleteMeeting(token, id);
+
+    process.stdout.write(`Meeting ${id} deleted.\n`);
   });
 
 (async () => {

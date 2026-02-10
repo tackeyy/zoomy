@@ -6,7 +6,7 @@ A CLI tool for managing Zoom resources via Server-to-Server OAuth. JSON output, 
 
 ## Features
 
-- **Meetings** — create meetings with auto-generated topics, list scheduled meetings with date filters
+- **Meetings** — create, get, update, delete meetings with auto-generated topics, list scheduled meetings with date filters
 - **Customizable topics** — template-based topic generation with date formatting and participant names
 - **JSON output** — `--json` flag for scripting and automation
 - **Server-to-Server OAuth** — no browser login required, token auto-refresh
@@ -32,8 +32,9 @@ npm install
 
 In the **Scopes** tab, click **+ Add Scopes** and add:
 
-- `meeting:write:meeting` — create meetings
+- `meeting:write:meeting` — create/update/delete meetings
 - `meeting:read:list_meetings` — list meetings
+- `meeting:read:meeting` — get meeting details
 
 ![Zoom Scopes](docs/images/zoom-scopes.png)
 
@@ -107,6 +108,64 @@ Examples:
 zoomy list
 zoomy list --from "2026-02-10" --to "2026-02-14"
 zoomy list --json
+```
+
+### `get` — Get meeting details
+
+```bash
+zoomy get <meetingId> [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `<meetingId>` | Yes | Meeting ID |
+| `--json` | No | Output as JSON |
+
+Examples:
+
+```bash
+zoomy get 12345678901
+zoomy get 12345678901 --json
+```
+
+### `update` — Update a meeting
+
+```bash
+zoomy update <meetingId> [--topic <topic>] [--start <datetime>] [--duration <minutes>] [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `<meetingId>` | Yes | Meeting ID |
+| `--topic <topic>` | No | New topic |
+| `--start <datetime>` | No | New start time (ISO 8601) |
+| `--duration <minutes>` | No | New duration in minutes (max 1440) |
+| `--json` | No | Output as JSON |
+
+At least one of `--topic`, `--start`, or `--duration` is required.
+
+Examples:
+
+```bash
+zoomy update 12345678901 --topic "New Topic"
+zoomy update 12345678901 --start "2026-02-15T14:00:00" --duration 90
+zoomy update 12345678901 --topic "Updated" --json
+```
+
+### `delete` — Delete a meeting
+
+```bash
+zoomy delete <meetingId>
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `<meetingId>` | Yes | Meeting ID |
+
+Examples:
+
+```bash
+zoomy delete 12345678901
 ```
 
 ## Configuration

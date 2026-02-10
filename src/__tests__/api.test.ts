@@ -5,6 +5,7 @@ import { ApiError } from "../errors.js";
 // Mock the config module to avoid dotenv side effects
 vi.mock("../config.js", () => ({
   ZOOM_MEETINGS_URL: "https://api.zoom.us/v2/users/me/meetings",
+  zoomMeetingUrl: (id: number) => `https://api.zoom.us/v2/meetings/${id}`,
 }));
 
 const sampleMeeting: Meeting = {
@@ -463,5 +464,215 @@ describe("listMeetings", () => {
       expect(err).toBeInstanceOf(Error);
       expect((err as Error).name).toBe("ApiError");
     }
+  });
+});
+
+describe("getMeeting", () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    vi.resetModules();
+    globalThis.fetch = vi.fn();
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it("should return Meeting object on successful response", async () => {
+    const mockResponse = createMockResponse(true, 200, sampleMeeting);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { getMeeting } = await import("../api.js");
+    const meeting = await getMeeting("test-token", 12345678901);
+
+    expect(meeting.id).toBe(12345678901);
+    expect(meeting.topic).toBe("Test Meeting");
+    expect(meeting.join_url).toBe("https://zoom.us/j/12345678901");
+  });
+
+  it("should call correct URL with meeting ID", async () => {
+    const mockResponse = createMockResponse(true, 200, sampleMeeting);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { getMeeting } = await import("../api.js");
+    await getMeeting("token", 12345678901);
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "https://api.zoom.us/v2/meetings/12345678901",
+      expect.objectContaining({
+        method: "GET",
+        headers: expect.objectContaining({
+          Authorization: "Bearer token",
+        }),
+      })
+    );
+  });
+
+  it("should throw ApiError on 404 status", async () => {
+    const mockResponse = createMockResponse(false, 404, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { getMeeting } = await import("../api.js");
+    await expect(getMeeting("token", 99999)).rejects.toThrow("Resource not found.");
+  });
+
+  it("should throw ApiError on 401 status", async () => {
+    const mockResponse = createMockResponse(false, 401, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { getMeeting } = await import("../api.js");
+    await expect(getMeeting("token", 12345678901)).rejects.toThrow(
+      "Authentication expired. Please try again."
+    );
+  });
+
+  it("should throw ApiError on unknown status code", async () => {
+    const mockResponse = createMockResponse(false, 503, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { getMeeting } = await import("../api.js");
+    await expect(getMeeting("token", 12345678901)).rejects.toThrow(
+      "Failed to get meeting (HTTP 503)."
+    );
+  });
+});
+
+describe("updateMeeting", () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    vi.resetModules();
+    globalThis.fetch = vi.fn();
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it("should resolve on 204 No Content", async () => {
+    const mockResponse = createMockResponse(true, 204, null);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { updateMeeting } = await import("../api.js");
+    await expect(updateMeeting("token", 12345678901, { topic: "Updated" })).resolves.toBeUndefined();
+  });
+
+  it("should send PATCH request with correct body", async () => {
+    const mockResponse = createMockResponse(true, 204, null);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { updateMeeting } = await import("../api.js");
+    await updateMeeting("token", 12345678901, {
+      topic: "New Topic",
+      duration: 90,
+    });
+
+    const callArgs = vi.mocked(globalThis.fetch).mock.calls[0];
+    expect(callArgs[0]).toBe("https://api.zoom.us/v2/meetings/12345678901");
+    const options = callArgs[1] as RequestInit;
+    expect(options.method).toBe("PATCH");
+    const body = JSON.parse(options.body as string);
+    expect(body.topic).toBe("New Topic");
+    expect(body.duration).toBe(90);
+  });
+
+  it("should throw ApiError on 404 status", async () => {
+    const mockResponse = createMockResponse(false, 404, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { updateMeeting } = await import("../api.js");
+    await expect(updateMeeting("token", 99999, { topic: "X" })).rejects.toThrow(
+      "Resource not found."
+    );
+  });
+
+  it("should throw ApiError on 400 status", async () => {
+    const mockResponse = createMockResponse(false, 400, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { updateMeeting } = await import("../api.js");
+    await expect(updateMeeting("token", 12345678901, { topic: "X" })).rejects.toThrow(
+      "Invalid request parameters for update meeting."
+    );
+  });
+
+  it("should throw ApiError on unknown status code", async () => {
+    const mockResponse = createMockResponse(false, 502, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { updateMeeting } = await import("../api.js");
+    await expect(updateMeeting("token", 12345678901, { topic: "X" })).rejects.toThrow(
+      "Failed to update meeting (HTTP 502)."
+    );
+  });
+});
+
+describe("deleteMeeting", () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    vi.resetModules();
+    globalThis.fetch = vi.fn();
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it("should resolve on 204 No Content", async () => {
+    const mockResponse = createMockResponse(true, 204, null);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { deleteMeeting } = await import("../api.js");
+    await expect(deleteMeeting("token", 12345678901)).resolves.toBeUndefined();
+  });
+
+  it("should send DELETE request to correct URL", async () => {
+    const mockResponse = createMockResponse(true, 204, null);
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { deleteMeeting } = await import("../api.js");
+    await deleteMeeting("token", 12345678901);
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "https://api.zoom.us/v2/meetings/12345678901",
+      expect.objectContaining({
+        method: "DELETE",
+        headers: expect.objectContaining({
+          Authorization: "Bearer token",
+        }),
+      })
+    );
+  });
+
+  it("should throw ApiError on 404 status", async () => {
+    const mockResponse = createMockResponse(false, 404, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { deleteMeeting } = await import("../api.js");
+    await expect(deleteMeeting("token", 99999)).rejects.toThrow(
+      "Resource not found."
+    );
+  });
+
+  it("should throw ApiError on 401 status", async () => {
+    const mockResponse = createMockResponse(false, 401, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { deleteMeeting } = await import("../api.js");
+    await expect(deleteMeeting("token", 12345678901)).rejects.toThrow(
+      "Authentication expired. Please try again."
+    );
+  });
+
+  it("should throw ApiError on unknown status code", async () => {
+    const mockResponse = createMockResponse(false, 500, {});
+    vi.mocked(globalThis.fetch).mockResolvedValue(mockResponse);
+
+    const { deleteMeeting } = await import("../api.js");
+    await expect(deleteMeeting("token", 12345678901)).rejects.toThrow(
+      "Failed to delete meeting (HTTP 500)."
+    );
   });
 });

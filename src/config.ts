@@ -37,3 +37,7 @@ export function loadConfig(): AppConfig {
 export const ZOOM_OAUTH_URL = "https://zoom.us/oauth/token";
 export const ZOOM_API_BASE = "https://api.zoom.us/v2";
 export const ZOOM_MEETINGS_URL = `${ZOOM_API_BASE}/users/me/meetings`;
+
+export function zoomMeetingUrl(meetingId: number): string {
+  return `${ZOOM_API_BASE}/meetings/${meetingId}`;
+}
