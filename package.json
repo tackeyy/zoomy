@@ -1,19 +1,19 @@
 {
-  "name": "zoom-cli",
+  "name": "zoomy",
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
     "start": "tsx src/index.ts",
-    "zoom-cli": "tsx src/index.ts",
+    "zoomy": "tsx src/index.ts",
     "test": "vitest run"
   },
   "bin": {
-    "zoom-cli": "src/index.ts"
+    "zoomy": "src/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Zoom meeting CLI tool using Server-to-Server OAuth",
+  "description": "A CLI tool for managing Zoom resources via Server-to-Server OAuth",
   "dependencies": {
     "commander": "^14.0.3",
     "dotenv": "^17.2.4"

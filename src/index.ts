@@ -48,8 +48,8 @@ export function buildTopic(
 const program = new Command();
 
 program
-  .name("zoom-cli")
-  .description("Zoom meeting CLI tool using Server-to-Server OAuth")
+  .name("zoomy")
+  .description("A CLI tool for managing Zoom resources via Server-to-Server OAuth")
   .version("1.0.0");
 
 program

@@ -1,84 +1,171 @@
-# zoom-cli
+# zoomy — Zoom in your terminal.
 
-Zoom ミーティングの作成・一覧取得を行う CLI ツール。Server-to-Server OAuth で認証。
+[\[日本語\]](README_ja.md)
 
-## セットアップ
+A CLI tool for managing Zoom resources via Server-to-Server OAuth. JSON output, customizable meeting topics, and script-friendly design.
 
-### 1. 依存関係のインストール
+## Features
+
+- **Meetings** — create meetings with auto-generated topics, list scheduled meetings with date filters
+- **Customizable topics** — template-based topic generation with date formatting and participant names
+- **JSON output** — `--json` flag for scripting and automation
+- **Server-to-Server OAuth** — no browser login required, token auto-refresh
+- **Timezone-aware** — configurable timezone for topic date formatting
+
+## Installation
 
 ```bash
-cd ~/dev/zoom-cli
+git clone https://github.com/tackeyy/zoomy.git
+cd zoomy
 npm install
 ```
 
-### 2. Zoom Server-to-Server OAuth アプリの作成
+## Quick Start
 
-1. [Zoom Marketplace](https://marketplace.zoom.us/) にログイン
-2. **Develop** → **Build App** → **Server-to-Server OAuth** を選択して **Create**
-3. アプリ名を入力（例: `zoom-cli`）
+### 1. Create a Zoom Server-to-Server OAuth App
 
-### 3. スコープの設定
+1. Log in to [Zoom Marketplace](https://marketplace.zoom.us/)
+2. **Develop** > **Build App** > **Server-to-Server OAuth** > **Create**
+3. Name your app (e.g., `zoomy`)
 
-Scopes タブで **+ Add Scopes** をクリックし、以下を検索して追加:
+### 2. Configure Scopes
 
-- `meeting:write:meeting` — ミーティング作成用
-- `meeting:read:list_meetings` — ミーティング一覧取得用
+In the **Scopes** tab, click **+ Add Scopes** and add:
 
-![Zoom Scopes 設定画面](docs/images/zoom-scopes.png)
+- `meeting:write:meeting` — create meetings
+- `meeting:read:list_meetings` — list meetings
 
-### 4. アプリの有効化
+![Zoom Scopes](docs/images/zoom-scopes.png)
 
-**Activation** タブで **Activate your app** をクリック。
+### 3. Activate the App
 
-### 5. `.env` の作成
+Go to the **Activation** tab and click **Activate your app**.
 
-App Credentials タブに表示される Account ID / Client ID / Client Secret を `.env` に設定:
+### 4. Set Up Environment Variables
 
 ```bash
 cp .env.example .env
 ```
 
+Edit `.env` with your credentials from the **App Credentials** tab:
+
 ```bash
-# 認証（必須）
 ZOOM_ACCOUNT_ID=your_account_id
 ZOOM_CLIENT_ID=your_client_id
 ZOOM_CLIENT_SECRET=your_client_secret
-
-# 設定（任意）
-ZOOM_TIMEZONE=Asia/Tokyo
-ZOOM_DATE_FORMAT=yyyy/MM/dd HH:mm
-ZOOM_TOPIC_TEMPLATE={{date}} | {{with}}
-ZOOM_TOPIC_TEMPLATE_NO_WITH={{date}}
 ```
 
-## 使い方
-
-### ミーティング作成
+### 5. Run
 
 ```bash
-# 相手ありの場合 → タイトル: "2026/02/10 10:00 | 田中様"
-npx tsx src/index.ts create --start "2026-02-10T10:00:00" --duration 60 --with "田中様"
-
-# 相手なしの場合 → タイトル: "2026/02/10 10:00"
-npx tsx src/index.ts create --start "2026-02-10T10:00:00" --duration 60
-
-# JSON出力
-npx tsx src/index.ts create --start "2026-02-10T10:00:00" --duration 60 --with "田中様" --json
+npx tsx src/index.ts create --start "2026-02-10T10:00:00" --duration 60 --with "Alice"
 ```
 
-### ミーティング一覧
+## Commands
+
+### `create` — Create a meeting
 
 ```bash
-npx tsx src/index.ts list
-npx tsx src/index.ts list --from "2026-02-10" --to "2026-02-14"
-npx tsx src/index.ts list --json
+zoomy create --start <datetime> --duration <minutes> [--with <name>] [--json]
 ```
 
-## 設定
-
-| 環境変数 | デフォルト | 説明 |
+| Flag | Required | Description |
 |---|---|---|
-| `ZOOM_TIMEZONE` | `Asia/Tokyo` | タイムゾーン |
-| `ZOOM_DATE_FORMAT` | `yyyy/MM/dd HH:mm` | トピック内の日時フォーマット |
-| `ZOOM_TOPIC_TEMPLATE` | `{{date}} \| {{with}}` | `--with` 指定時のトピックテンプレート |
-| `ZOOM_TOPIC_TEMPLATE_NO_WITH` | `{{date}}` | `--with` 未指定時のトピックテンプレート |
+| `--start <datetime>` | Yes | Start time in ISO 8601 (e.g., `2026-02-10T10:00:00`) |
+| `--duration <minutes>` | Yes | Duration in minutes (max 1440) |
+| `--with <name>` | No | Participant name (used in topic) |
+| `--json` | No | Output as JSON |
+
+Examples:
+
+```bash
+# With participant — topic: "2026/02/10 10:00 | Alice"
+zoomy create --start "2026-02-10T10:00:00" --duration 60 --with "Alice"
+
+# Without participant — topic: "2026/02/10 10:00"
+zoomy create --start "2026-02-10T10:00:00" --duration 30
+
+# JSON output
+zoomy create --start "2026-02-10T10:00:00" --duration 60 --with "Alice" --json
+```
+
+### `list` — List scheduled meetings
+
+```bash
+zoomy list [--from <date>] [--to <date>] [--json]
+```
+
+| Flag | Required | Description |
+|---|---|---|
+| `--from <date>` | No | Start date filter (`YYYY-MM-DD`) |
+| `--to <date>` | No | End date filter (`YYYY-MM-DD`) |
+| `--json` | No | Output as JSON |
+
+Examples:
+
+```bash
+zoomy list
+zoomy list --from "2026-02-10" --to "2026-02-14"
+zoomy list --json
+```
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `ZOOM_ACCOUNT_ID` | *(required)* | Zoom account ID |
+| `ZOOM_CLIENT_ID` | *(required)* | OAuth client ID |
+| `ZOOM_CLIENT_SECRET` | *(required)* | OAuth client secret |
+| `ZOOM_TIMEZONE` | `Asia/Tokyo` | Timezone for topic date formatting |
+| `ZOOM_DATE_FORMAT` | `yyyy/MM/dd HH:mm` | Date format in topics |
+| `ZOOM_TOPIC_TEMPLATE` | `{{date}} \| {{with}}` | Topic template when `--with` is specified |
+| `ZOOM_TOPIC_TEMPLATE_NO_WITH` | `{{date}}` | Topic template when `--with` is omitted |
+
+## Output Formats
+
+### Text (default)
+
+```
+Meeting created!
+  Topic:    2026/02/10 10:00 | Alice
+  Start:    2026-02-10T10:00:00Z
+  Duration: 60 min
+  Join URL: https://zoom.us/j/123456789
+```
+
+### JSON
+
+```bash
+zoomy create --start "2026-02-10T10:00:00" --duration 60 --with "Alice" --json
+```
+
+```json
+{
+  "id": 123456789,
+  "topic": "2026/02/10 10:00 | Alice",
+  "start_time": "2026-02-10T10:00:00Z",
+  "duration": 60,
+  "join_url": "https://zoom.us/j/123456789"
+}
+```
+
+## Development
+
+```bash
+npm install
+npm test
+```
+
+Tests use [Vitest](https://vitest.dev/).
+
+## License
+
+ISC
+
+## Links
+
+- [GitHub Repository](https://github.com/tackeyy/zoomy)
+- [Zoom API Documentation](https://developers.zoom.us/docs/api/)
+- [Zoom Server-to-Server OAuth](https://developers.zoom.us/docs/internal-apps/s2s-oauth/)
