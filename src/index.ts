@@ -1,4 +1,4 @@
-#!/usr/bin/env npx tsx
+#!/usr/bin/env node
 import { Command } from "commander";
 import { loadConfig } from "./config.js";
 import { getAccessToken } from "./auth.js";

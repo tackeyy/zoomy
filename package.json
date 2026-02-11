@@ -1,15 +1,20 @@
 {
   "name": "zoomy",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
     "start": "tsx src/index.ts",
-    "zoomy": "tsx src/index.ts",
     "test": "vitest run"
   },
   "bin": {
-    "zoomy": "src/index.ts"
+    "zoomy": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
