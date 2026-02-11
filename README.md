@@ -14,10 +14,18 @@ A CLI tool for managing Zoom resources via Server-to-Server OAuth. JSON output, 
 
 ## Installation
 
+### npm (global)
+
+```bash
+npm install -g github:tackeyy/zoomy
+```
+
+### Clone and install
+
 ```bash
 git clone https://github.com/tackeyy/zoomy.git
 cd zoomy
-npm install
+npm install -g .
 ```
 
 ## Quick Start
@@ -59,7 +67,7 @@ ZOOM_CLIENT_SECRET=your_client_secret
 ### 5. Run
 
 ```bash
-npx tsx src/index.ts create --start "2026-02-10T10:00:00" --duration 60 --with "Alice"
+zoomy create --start "2026-02-10T10:00:00" --duration 60 --with "Alice"
 ```
 
 ## Commands

@@ -14,10 +14,18 @@ Server-to-Server OAuth を使って Zoom リソースを管理する CLI ツー�
 
 ## インストール
 
+### npm（グローバル）
+
+```bash
+npm install -g github:tackeyy/zoomy
+```
+
+### クローンしてインストール
+
 ```bash
 git clone https://github.com/tackeyy/zoomy.git
 cd zoomy
-npm install
+npm install -g .
 ```
 
 ## クイックスタート
@@ -59,7 +67,7 @@ ZOOM_CLIENT_SECRET=your_client_secret
 ### 5. 実行
 
 ```bash
-npx tsx src/index.ts create --start "2026-02-10T10:00:00" --duration 60 --with "田中様"
+zoomy create --start "2026-02-10T10:00:00" --duration 60 --with "田中様"
 ```
 
 ## コマンド
