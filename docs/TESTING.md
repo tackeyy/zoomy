@@ -2,7 +2,7 @@
 
 ## Overview
 
-Zoomy uses [Vitest](https://vitest.dev/) as its testing framework. All code contributions must include comprehensive tests.
+zoomy uses [Vitest](https://vitest.dev/) as its testing framework. All code contributions must include comprehensive tests.
 
 ## Test Philosophy
 

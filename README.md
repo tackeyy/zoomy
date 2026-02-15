@@ -2,7 +2,8 @@
 
 [\[日本語\]](README_ja.md)
 
-A CLI tool for managing Zoom resources via Server-to-Server OAuth. JSON output, customizable meeting topics, and script-friendly design.
+A CLI tool for managing Zoom resources via Server-to-Server OAuth. JSON output, customizable meeting
+topics, and script-friendly design.
 
 ## Features
 

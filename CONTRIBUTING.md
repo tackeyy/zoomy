@@ -1,10 +1,13 @@
-# Contributing to Zoomy
+# Contributing to zoomy
 
-Thank you for your interest in contributing to Zoomy! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to zoomy! This document provides guidelines and
+instructions for contributing to the project.
 
 ## 🙏 Welcome!
 
-Zoomy is a CLI tool for managing Zoom meetings via Server-to-Server OAuth. We welcome contributions from everyone, whether you're fixing a bug, adding a feature, or improving documentation.
+zoomy is a CLI tool for managing Zoom meetings via Server-to-Server OAuth. We welcome
+contributions from everyone, whether you're fixing a bug, adding a feature, or improving
+documentation.
 
 ## 📖 Table of Contents
 
@@ -26,7 +29,7 @@ Zoomy is a CLI tool for managing Zoom meetings via Server-to-Server OAuth. We we
 - 💡 **Suggesting features** - Have an idea? We'd love to hear it
 - 📝 **Improving documentation** - Help make our docs clearer
 - 🔧 **Submitting bug fixes** - Fix issues and help improve stability
-- ✨ **Adding new features** - Expand Zoomy's capabilities (discuss first!)
+- ✨ **Adding new features** - Expand zoomy's capabilities (discuss first!)
 
 ## 🎯 Before You Start
 
@@ -255,4 +258,4 @@ All contributors are recognized in:
 
 ---
 
-Thank you for contributing to Zoomy! Your efforts help make this tool better for everyone.
+Thank you for contributing to zoomy! Your efforts help make this tool better for everyone.
