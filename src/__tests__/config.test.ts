@@ -189,3 +189,26 @@ describe("Config URL constants", () => {
     );
   });
 });
+
+describe("zoomMeetingUrl", () => {
+  it("should construct correct URL with meeting ID", async () => {
+    vi.resetModules();
+    const { zoomMeetingUrl } = await import("../config.js");
+
+    const url = zoomMeetingUrl(12345678901);
+
+    expect(url).toBe("https://api.zoom.us/v2/meetings/12345678901");
+  });
+
+  it("should construct different URLs for different meeting IDs", async () => {
+    vi.resetModules();
+    const { zoomMeetingUrl } = await import("../config.js");
+
+    const url1 = zoomMeetingUrl(111);
+    const url2 = zoomMeetingUrl(222);
+
+    expect(url1).toBe("https://api.zoom.us/v2/meetings/111");
+    expect(url2).toBe("https://api.zoom.us/v2/meetings/222");
+    expect(url1).not.toBe(url2);
+  });
+});
