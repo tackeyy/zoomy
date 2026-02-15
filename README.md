@@ -218,6 +218,15 @@ zoomy create --start "2026-02-10T10:00:00" --duration 60 --with "Alice" --json
 }
 ```
 
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- How to report bugs and request features
+- Development setup and coding standards
+- Testing requirements and guidelines
+- Pull request process
+
 ## Development
 
 ```bash
@@ -225,7 +234,7 @@ npm install
 npm test
 ```
 
-Tests use [Vitest](https://vitest.dev/).
+Tests use [Vitest](https://vitest.dev/). See [Testing Guide](docs/TESTING.md) for comprehensive testing documentation.
 
 ## License
 

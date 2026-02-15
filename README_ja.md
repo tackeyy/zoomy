@@ -218,6 +218,15 @@ zoomy create --start "2026-02-10T10:00:00" --duration 60 --with "田中様" --js
 }
 ```
 
+## コントリビューション
+
+コントリビューションを歓迎します！詳細は [Contributing Guide](CONTRIBUTING.md)（英語）をご覧ください。
+
+- バグ報告・機能リクエストの方法
+- 開発環境のセットアップとコーディング規約
+- テスト要件とガイドライン
+- プルリクエストのプロセス
+
 ## 開発
 
 ```bash
@@ -225,7 +234,7 @@ npm install
 npm test
 ```
 
-テストには [Vitest](https://vitest.dev/) を使用しています。
+テストには [Vitest](https://vitest.dev/) を使用しています。詳細なテストドキュメントは [Testing Guide](docs/TESTING.md)（英語）をご覧ください。
 
 ## ライセンス
 
