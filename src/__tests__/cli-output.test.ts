@@ -10,6 +10,8 @@ const sampleMeeting: Meeting = {
   timezone: "Asia/Tokyo",
   join_url: "https://zoom.us/j/12345678901",
   start_url: "https://zoom.us/s/12345678901",
+  password: "123456",
+  encrypted_password: "abc123def456",
   created_at: "2026-02-09T00:00:00Z",
 };
 
@@ -34,6 +36,7 @@ describe("CLI Output - create command", () => {
       process.stdout.write(`  Start:    ${meeting.start_time}\n`);
       process.stdout.write(`  Duration: ${meeting.duration} min\n`);
       process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+      process.stdout.write(`  Passcode: ${meeting.password}\n`);
     }
 
     expect(stdoutSpy).toHaveBeenCalledWith("Meeting created!\n");
@@ -41,6 +44,7 @@ describe("CLI Output - create command", () => {
     expect(stdoutSpy).toHaveBeenCalledWith("  Start:    2026-02-10T10:00:00Z\n");
     expect(stdoutSpy).toHaveBeenCalledWith("  Duration: 60 min\n");
     expect(stdoutSpy).toHaveBeenCalledWith("  Join URL: https://zoom.us/j/12345678901\n");
+    expect(stdoutSpy).toHaveBeenCalledWith("  Passcode: 123456\n");
   });
 
   it("should output JSON format when --json flag is provided", () => {
@@ -55,6 +59,9 @@ describe("CLI Output - create command", () => {
           start_time: meeting.start_time,
           duration: meeting.duration,
           join_url: meeting.join_url,
+          password: meeting.password,
+          meeting_id_formatted: "123 4567 8901",
+          invitation_url: "https://zoom.us/meetings/12345678901/invitations",
         },
         null,
         2
@@ -68,6 +75,9 @@ describe("CLI Output - create command", () => {
     expect(output).toContain('"id": 12345678901');
     expect(output).toContain('"topic": "Test Meeting"');
     expect(output).toContain('"join_url": "https://zoom.us/j/12345678901"');
+    expect(output).toContain('"password": "123456"');
+    expect(output).toContain('"meeting_id_formatted": "123 4567 8901"');
+    expect(output).toContain('"invitation_url": "https://zoom.us/meetings/12345678901/invitations"');
   });
 });
 
@@ -125,6 +135,9 @@ describe("CLI Output - list command", () => {
         start_time: m.start_time,
         duration: m.duration,
         join_url: m.join_url,
+        password: m.password,
+        meeting_id_formatted: "123 4567 8901",
+        invitation_url: "https://zoom.us/meetings/12345678901/invitations",
       }));
       process.stdout.write(JSON.stringify(output, null, 2) + "\n");
     }
@@ -134,6 +147,7 @@ describe("CLI Output - list command", () => {
     const output = calls[0][0] as string;
     expect(output).toContain('"id": 12345678901');
     expect(output).toContain('"topic": "Test Meeting"');
+    expect(output).toContain('"password": "123456"');
   });
 
   it("should output empty JSON array when no meetings and --json flag is provided", () => {
@@ -147,6 +161,9 @@ describe("CLI Output - list command", () => {
         start_time: m.start_time,
         duration: m.duration,
         join_url: m.join_url,
+        password: m.password,
+        meeting_id_formatted: "",
+        invitation_url: "",
       }));
       process.stdout.write(JSON.stringify(output, null, 2) + "\n");
     }
@@ -179,10 +196,12 @@ describe("CLI Output - get command", () => {
       process.stdout.write(`  Start:    ${meeting.start_time}\n`);
       process.stdout.write(`  Duration: ${meeting.duration} min\n`);
       process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+      process.stdout.write(`  Passcode: ${meeting.password}\n`);
     }
 
     expect(stdoutSpy).toHaveBeenCalledWith("  ID:       12345678901\n");
     expect(stdoutSpy).toHaveBeenCalledWith("  Topic:    Test Meeting\n");
+    expect(stdoutSpy).toHaveBeenCalledWith("  Passcode: 123456\n");
   });
 
   it("should output JSON format when --json flag is provided", () => {
@@ -197,6 +216,9 @@ describe("CLI Output - get command", () => {
           start_time: meeting.start_time,
           duration: meeting.duration,
           join_url: meeting.join_url,
+          password: meeting.password,
+          meeting_id_formatted: "123 4567 8901",
+          invitation_url: "https://zoom.us/meetings/12345678901/invitations",
         },
         null,
         2
@@ -208,6 +230,7 @@ describe("CLI Output - get command", () => {
     expect(calls.length).toBeGreaterThan(0);
     const output = calls[0][0] as string;
     expect(output).toContain('"id": 12345678901');
+    expect(output).toContain('"password": "123456"');
   });
 });
 
@@ -233,10 +256,12 @@ describe("CLI Output - update command", () => {
       process.stdout.write(`  Start:    ${meeting.start_time}\n`);
       process.stdout.write(`  Duration: ${meeting.duration} min\n`);
       process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+      process.stdout.write(`  Passcode: ${meeting.password}\n`);
     }
 
     expect(stdoutSpy).toHaveBeenCalledWith("Meeting updated!\n");
     expect(stdoutSpy).toHaveBeenCalledWith("  Topic:    Updated Topic\n");
+    expect(stdoutSpy).toHaveBeenCalledWith("  Passcode: 123456\n");
   });
 
   it("should output JSON format when --json flag is provided", () => {
@@ -251,6 +276,9 @@ describe("CLI Output - update command", () => {
           start_time: meeting.start_time,
           duration: meeting.duration,
           join_url: meeting.join_url,
+          password: meeting.password,
+          meeting_id_formatted: "123 4567 8901",
+          invitation_url: "https://zoom.us/meetings/12345678901/invitations",
         },
         null,
         2
@@ -262,6 +290,7 @@ describe("CLI Output - update command", () => {
     expect(calls.length).toBeGreaterThan(0);
     const output = calls[0][0] as string;
     expect(output).toContain('"id": 12345678901');
+    expect(output).toContain('"password": "123456"');
   });
 });
 

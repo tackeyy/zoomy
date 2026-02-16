@@ -17,6 +17,8 @@ const sampleMeeting: Meeting = {
   timezone: "Asia/Tokyo",
   join_url: "https://zoom.us/j/12345678901",
   start_url: "https://zoom.us/s/12345678901",
+  password: "123456",
+  encrypted_password: "abc123def456",
   created_at: "2026-02-09T00:00:00Z",
 };
 

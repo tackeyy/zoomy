@@ -260,3 +260,58 @@ describe("buildTopic", () => {
     expect(result).toBe("2026/02/10 10:00");
   });
 });
+
+describe("formatMeetingId", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  it("should format 11-digit ID with spaces in groups of 4 from right", async () => {
+    const { formatMeetingId } = await import("../index.js");
+    expect(formatMeetingId(12345678901)).toBe("123 4567 8901");
+  });
+
+  it("should format 10-digit ID", async () => {
+    const { formatMeetingId } = await import("../index.js");
+    expect(formatMeetingId(1234567890)).toBe("12 3456 7890");
+  });
+
+  it("should handle short ID without adding unnecessary spaces", async () => {
+    const { formatMeetingId } = await import("../index.js");
+    expect(formatMeetingId(1234)).toBe("1234");
+  });
+
+  it("should handle very short ID", async () => {
+    const { formatMeetingId } = await import("../index.js");
+    expect(formatMeetingId(12)).toBe("12");
+  });
+
+  it("should format 8-digit ID", async () => {
+    const { formatMeetingId } = await import("../index.js");
+    expect(formatMeetingId(85470710)).toBe("8547 0710");
+  });
+});
+
+describe("buildInvitationUrl", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  it("should build invitation URL from join URL", async () => {
+    const { buildInvitationUrl } = await import("../index.js");
+    const result = buildInvitationUrl("https://us06web.zoom.us/j/12345678901?pwd=abc123", 12345678901);
+    expect(result).toBe("https://us06web.zoom.us/meetings/12345678901/invitations");
+  });
+
+  it("should handle different zoom domains", async () => {
+    const { buildInvitationUrl } = await import("../index.js");
+    const result = buildInvitationUrl("https://zoom.us/j/99999", 99999);
+    expect(result).toBe("https://zoom.us/meetings/99999/invitations");
+  });
+
+  it("should return empty string for invalid URL", async () => {
+    const { buildInvitationUrl } = await import("../index.js");
+    const result = buildInvitationUrl("not-a-url", 12345);
+    expect(result).toBe("");
+  });
+});

@@ -45,6 +45,30 @@ export function buildTopic(
   return config.topicTemplateNoWith.replace("{{date}}", dateStr);
 }
 
+// Format meeting ID with spaces (e.g., 12345678901 -> "123 4567 8901")
+export function formatMeetingId(id: number): string {
+  const str = String(id);
+  const parts: string[] = [];
+  // Split from right in groups of 4, leftmost group may be shorter
+  let i = str.length;
+  while (i > 0) {
+    const start = Math.max(0, i - 4);
+    parts.unshift(str.slice(start, i));
+    i = start;
+  }
+  return parts.join(" ");
+}
+
+// Build invitation URL from join_url and meeting ID
+export function buildInvitationUrl(joinUrl: string, meetingId: number): string {
+  try {
+    const url = new URL(joinUrl);
+    return `${url.origin}/meetings/${meetingId}/invitations`;
+  } catch {
+    return "";
+  }
+}
+
 const program = new Command();
 
 program
@@ -93,6 +117,9 @@ program
             start_time: meeting.start_time,
             duration: meeting.duration,
             join_url: meeting.join_url,
+            password: meeting.password,
+            meeting_id_formatted: formatMeetingId(meeting.id),
+            invitation_url: buildInvitationUrl(meeting.join_url, meeting.id),
           },
           null,
           2
@@ -104,6 +131,7 @@ program
       process.stdout.write(`  Start:    ${meeting.start_time}\n`);
       process.stdout.write(`  Duration: ${meeting.duration} min\n`);
       process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+      process.stdout.write(`  Passcode: ${meeting.password}\n`);
     }
   });
 
@@ -142,6 +170,9 @@ program
         start_time: m.start_time,
         duration: m.duration,
         join_url: m.join_url,
+        password: m.password,
+        meeting_id_formatted: formatMeetingId(m.id),
+        invitation_url: buildInvitationUrl(m.join_url, m.id),
       }));
       process.stdout.write(JSON.stringify(output, null, 2) + "\n");
     } else {
@@ -183,6 +214,9 @@ program
             start_time: meeting.start_time,
             duration: meeting.duration,
             join_url: meeting.join_url,
+            password: meeting.password,
+            meeting_id_formatted: formatMeetingId(meeting.id),
+            invitation_url: buildInvitationUrl(meeting.join_url, meeting.id),
           },
           null,
           2
@@ -194,6 +228,7 @@ program
       process.stdout.write(`  Start:    ${meeting.start_time}\n`);
       process.stdout.write(`  Duration: ${meeting.duration} min\n`);
       process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+      process.stdout.write(`  Passcode: ${meeting.password}\n`);
     }
   });
 
@@ -252,6 +287,9 @@ program
             start_time: meeting.start_time,
             duration: meeting.duration,
             join_url: meeting.join_url,
+            password: meeting.password,
+            meeting_id_formatted: formatMeetingId(meeting.id),
+            invitation_url: buildInvitationUrl(meeting.join_url, meeting.id),
           },
           null,
           2
@@ -264,6 +302,7 @@ program
       process.stdout.write(`  Start:    ${meeting.start_time}\n`);
       process.stdout.write(`  Duration: ${meeting.duration} min\n`);
       process.stdout.write(`  Join URL: ${meeting.join_url}\n`);
+      process.stdout.write(`  Passcode: ${meeting.password}\n`);
     }
   });
 

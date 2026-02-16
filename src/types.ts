@@ -25,6 +25,8 @@ export interface Meeting {
   timezone: string;
   join_url: string;
   start_url: string;
+  password: string;
+  encrypted_password: string;
   created_at: string;
 }
 
